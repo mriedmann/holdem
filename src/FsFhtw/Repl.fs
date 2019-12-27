@@ -12,10 +12,6 @@ type State = Domain.State
 
 let read (input : string) =
     match input with
-    | Increment -> Domain.Increment |> DomainMessage
-    | Decrement -> Domain.Decrement |> DomainMessage
-    | IncrementBy v -> Domain.IncrementBy v |> DomainMessage
-    | DecrementBy v -> Domain.DecrementBy v |> DomainMessage
     | Help -> HelpRequested
     | ParseFailed  -> NotParsable input
 

@@ -82,3 +82,10 @@ type State = int
 
 let init () : State =
     0
+
+type Message =
+    Noop
+
+let update (msg : Message) (model : State) : State =
+    match msg with
+    | Noop -> model
