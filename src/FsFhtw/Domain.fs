@@ -5,6 +5,10 @@ type Player = {
     position : int 
 }
 
+type Game = {
+    players : Player list
+}
+
 type CardRank =
     | Ace = 14
     | King = 13
@@ -19,7 +23,6 @@ type CardRank =
     | Four = 4
     | Three = 3
     | Two = 2
-    //TODO: Ace can also represent the value one for Straigths
 
 type CardSuit =
     | Hearts = '\u2665'
@@ -40,31 +43,42 @@ type CommunityCards =
     Card list
 
 type HoleCards = {
-    cards : Card list;
+    cards : Card list
     player : Player
 }
 
+type HandRank =
+    | HighCard = 0
+    | Pair = 1
+    | TwoPair = 2
+    | ThreeOfAKind = 3
+    | Straight = 4
+    | Flush = 5
+    | FullHouse = 6
+    | Poker = 7
+    | StraightFlush = 8
+    | RoyalFlush = 9
+
 type Hand = {
-    board : CommunityCards;
-    holeCard : HoleCards
+    rank: HandRank
+    rankValue: CardRank
+    kicker: CardRank option
+    player : Player
 }
 
-let dealCards(deck : ShuffledDeck) (number : int) =
-    (deck.[0..number], deck.[number+1..deck.Length])
+type CreateHand = CommunityCards -> HoleCards -> Hand
 
-let dealHoleCards(deck : ShuffledDeck) =
-    dealCards deck 2
+type CompareHands = Hand -> Hand -> (Hand option)
 
-let dealCommunityCards(deck : ShuffledDeck) =
-    dealCards deck 5
+type ShuffleDeck = Deck -> ShuffledDeck
 
-(*let dealFlop(deck : ShuffledDeck) =
-    dealCards deck 3
+type DealHoleCards = ShuffledDeck -> Player -> ShuffledDeck * HoleCards
 
-let dealTurn(deck : ShuffledDeck) (board : CommunityCards) =
-    let (additionalBoardCards, newDeck) = dealCards deck 1
-    (addCardsToCommunityCards board additionalBoardCards, newDeck)
+type DealCommunityCards = ShuffledDeck -> ShuffledDeck * CommunityCards
 
-let dealRiver(deck : ShuffledDeck) (board : CommunityCards) =
-    let(additionalBoardCards, newDeck) = dealCards deck 1
-    (addCardsToCommunityCards board additionalBoardCards, newDeck) *)
+type EvaluateWinner = Player list -> Player
+
+type State = int
+
+let init () : State =
+    0
