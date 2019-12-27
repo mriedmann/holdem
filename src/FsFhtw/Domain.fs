@@ -66,6 +66,8 @@ type Hand = {
     player : Player
 }
 
+type CreateDeck = unit -> Deck
+
 type CreateHand = CommunityCards -> HoleCards -> Hand
 
 type CompareHands = Hand -> Hand -> (Hand option)

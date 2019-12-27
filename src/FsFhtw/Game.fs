@@ -3,6 +3,19 @@ module Game
 open Domain 
 open Helpers
 
+let createDeck : CreateDeck = fun () ->
+    let cardRanks = [ 
+        CardRank.Two; CardRank.Three; CardRank.Four;
+        CardRank.Five; CardRank.Six; CardRank.Seven;
+        CardRank.Eight; CardRank.Nine; CardRank.Ten;
+        CardRank.Jack; CardRank.Queen; CardRank.King;
+        CardRank.Ace;
+    ]
+    [ for i in 0 .. 12 -> (cardRanks.[i], CardSuit.Club)] @
+    [ for i in 0 .. 12 -> (cardRanks.[i], CardSuit.Diamond)] @
+    [ for i in 0 .. 12 -> (cardRanks.[i], CardSuit.Hearts)] @
+    [ for i in 0 .. 12 -> (cardRanks.[i], CardSuit.Spade)] 
+
 let shuffleDeck : ShuffleDeck = 
     List.toArray >> KnuthShuffle >> Array.toList
 
