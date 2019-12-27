@@ -1,6 +1,11 @@
 module Domain
 
-type CardValue =
+type Player = {
+    name : string;
+    position : int 
+}
+
+type CardRank =
     | Ace = 14
     | King = 13
     | Queen = 12
@@ -31,34 +36,36 @@ type Deck =
 type ShuffledDeck = 
     Card list
 
-type BoardCards =
+type CommunityCards =
     Card list
 
-type Hand = 
-    Card list
+type HoleCard = {
+    cards : Card list;
+    player : Player
+}
 
-type ScoredCards = {
-    board: BoardCards;
-    hand: Hand
+type Hand = {
+    board : CommunityCards;
+    hand : Hand
 }
 
 let dealCards(deck : ShuffledDeck) (number : int) =
     (deck.[0..number], deck.[number+1..deck.Length])
 
 let dealHand(deck : ShuffledDeck) =
-    let hand = dealCards deck, 2
+    let hand = dealCards deck 2
     hand
 
-let addCardsToBoard(board : BoardCards) (cards : Card list) =
-    board // :: cards TODO - Cast?
+let addCardsToCommunityCards(board : CommunityCards) (cards : Card list) =
+    board :: cards //TODO - Cast?
 
 let dealFlop(deck : ShuffledDeck) =
-    dealCards deck, 3
+    dealCards deck 3
 
-let dealTurn(deck : ShuffledDeck) (board : BoardCards) =
-    let(additionalBoardCards, newDeck) = dealCards deck, 1
-    (addCardsToBoard board, additionalBoardCards, newDeck)
+let dealTurn(deck : ShuffledDeck) (board : CommunityCards) =
+    let (additionalBoardCards, newDeck) = dealCards deck 1
+    (addCardsToCommunityCards board additionalBoardCards, newDeck)
 
-let dealRiver(deck : ShuffledDeck) (board : BoardCards) =
-    let(additionalBoardCards, newDeck) = dealCards deck, 1
-    (addCardsToBoard board, additionalBoardCards, newDeck)
+let dealRiver(deck : ShuffledDeck) (board : CommunityCards) =
+    let(additionalBoardCards, newDeck) = dealCards deck 1
+    (addCardsToCommunityCards board additionalBoardCards, newDeck)
