@@ -49,17 +49,16 @@ let dealHand(deck : ShuffledDeck) =
     let hand = dealCards deck, 2
     hand
 
-let addCardsToBoard(board : BoardCards), (cards : Card list) =
-    let additionalBoardCards = new BoardCards(cards)
-    board :: additionalBoardCards
+let addCardsToBoard(board : BoardCards) (cards : Card list) =
+    board // :: cards TODO - Cast?
 
 let dealFlop(deck : ShuffledDeck) =
     dealCards deck, 3
 
 let dealTurn(deck : ShuffledDeck) (board : BoardCards) =
     let(additionalBoardCards, newDeck) = dealCards deck, 1
-    (addCardsToBoard(board, additionalBoardCards), newDeck)
+    (addCardsToBoard board, additionalBoardCards, newDeck)
 
-let dealRiver(deck : ShuffledDeck, board : BoardCards) =
+let dealRiver(deck : ShuffledDeck) (board : BoardCards) =
     let(additionalBoardCards, newDeck) = dealCards deck, 1
-    (addCardsToBoard(board, additionalBoardCards), newDeck)
+    (addCardsToBoard board, additionalBoardCards, newDeck)
