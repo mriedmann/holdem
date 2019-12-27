@@ -28,7 +28,7 @@ type CardSuit =
     | Club = '\u2663'
 
 type Card = 
-    CardValue * CardSuit
+    CardRank * CardSuit
 
 type Deck = 
     Card list
@@ -39,27 +39,26 @@ type ShuffledDeck =
 type CommunityCards =
     Card list
 
-type HoleCard = {
+type HoleCards = {
     cards : Card list;
     player : Player
 }
 
 type Hand = {
     board : CommunityCards;
-    hand : Hand
+    holeCard : HoleCards
 }
 
 let dealCards(deck : ShuffledDeck) (number : int) =
     (deck.[0..number], deck.[number+1..deck.Length])
 
-let dealHand(deck : ShuffledDeck) =
-    let hand = dealCards deck 2
-    hand
+let dealHoleCards(deck : ShuffledDeck) =
+    dealCards deck 2
 
-let addCardsToCommunityCards(board : CommunityCards) (cards : Card list) =
-    board :: cards //TODO - Cast?
+let dealCommunityCards(deck : ShuffledDeck) =
+    dealCards deck 5
 
-let dealFlop(deck : ShuffledDeck) =
+(*let dealFlop(deck : ShuffledDeck) =
     dealCards deck 3
 
 let dealTurn(deck : ShuffledDeck) (board : CommunityCards) =
@@ -68,4 +67,4 @@ let dealTurn(deck : ShuffledDeck) (board : CommunityCards) =
 
 let dealRiver(deck : ShuffledDeck) (board : CommunityCards) =
     let(additionalBoardCards, newDeck) = dealCards deck 1
-    (addCardsToCommunityCards board additionalBoardCards, newDeck)
+    (addCardsToCommunityCards board additionalBoardCards, newDeck) *)
