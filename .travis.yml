@@ -1,8 +1,7 @@
 language: csharp
 solution: FsFhtw.sln
-install:
-  - nuget restore FsFhtw.sln
-  - nuget install NUnit.Console -Version 3.9.0 -OutputDirectory testrunner
-script:
-  - msbuild /p:Configuration=Release FsFhtw.sln
-  - mono ./testrunner/NUnit.ConsoleRunner.3.9.0/tools/nunit3-console.exe ./src/FsFhtw.Tests/bin/Release/FsFhtw.Tests.dll
+mono: none
+dotnet: 3.1.100
+ - dotnet restore
+ - dotnet build
+ - dotnet test
