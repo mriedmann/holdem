@@ -2,19 +2,8 @@ module FsFhtw.Tests
 
 open NUnit.Framework
 open Domain
+open DomainSerializer
 open Game
-
-let cardRank =
-    fst
-
-let cardSuit =
-    snd
-
-let serializeCard (card : Card) =
-    (cardRank card |> string) + (cardSuit card |> string)
-
-let serializeDeck (deck : Deck) =
-    List.map (fun c -> serializeCard) deck
 
 [<SetUp>]
 let Setup () =
@@ -44,4 +33,67 @@ let ShuffleDeckTest1 () =
     let shuffledDeck = shuffleDeck deck
     Assert.That((shuffledDeck |> serializeDeck), Is.Not.EqualTo((deck |> serializeDeck)))
 
+[<Test>]
+let DealHoleCardsTest1 () =
+    let deck = "2♥2♦2♠2♣4♣" |> deserializeDeck
+    let holeCards, remainingDeck = deck |> dealHoleCards
+    Assert.AreEqual(3, remainingDeck.Length)
+    Assert.AreEqual(2, holeCards.Length)
+    Assert.AreEqual("2♥2♦", (holeCards |> serializeDeck))
 
+[<Test>]
+let DealCommunityCardsTest1 () =
+    let deck = "2♥2♦J♦2♠2♣4♣3♥3♦3♠7♣8♣" |> deserializeDeck
+    let communityCards, remainingDeck = deck |> dealCommunityCards
+    Assert.AreEqual(6, remainingDeck.Length)
+    Assert.AreEqual(5, communityCards.Length)
+    Assert.AreEqual("2♥2♦J♦2♠2♣", (communityCards |> serializeDeck))
+
+let CreateHandTestCaseData =
+    [
+        ("2♥2♦2♠2♣3♣", "3♦3♠", {rank=HandRank.Poker;    rankValue=CardRank.Two;   kicker=Some CardRank.Three})
+        ("A♥K♦Q♠J♣T♣", "9♦8♠", {rank=HandRank.Straight; rankValue=CardRank.Ace;   kicker=None})
+        ("2♥2♦5♠6♣3♣", "K♦Q♠", {rank=HandRank.Pair;     rankValue=CardRank.Two;   kicker=Some CardRank.King})
+        ("2♥2♦3♠6♣3♣", "7♦8♠", {rank=HandRank.TwoPair;  rankValue=CardRank.Two;   kicker=Some CardRank.Eight})
+        ("A♥K♦Q♠J♣T♣", "8♦8♠", {rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Ace})
+    ] |> List.map (fun (q, n, d) -> TestCaseData(q,n,d))
+
+[<TestCaseSource("CreateHandTestCaseData")>]
+let CreateHandTest (cc:string) (hc:string) (expectedHand:Hand) =
+    let communityCards:CommunityCards = cc |> deserializeDeck
+    let holeCards:HoleCards =  hc |> deserializeDeck
+
+    let hand = createHand communityCards holeCards
+
+    Assert.AreEqual(expectedHand.rank, hand.rank)
+    Assert.AreEqual(expectedHand.rankValue, hand.rankValue)
+    Assert.AreEqual(expectedHand.kicker, hand.kicker)
+
+let CompareHandsTestCaseData =
+    [
+        ({rank=HandRank.Poker;    rankValue=CardRank.Two;   kicker=Some CardRank.Three}, 
+         {rank=HandRank.TwoPair;    rankValue=CardRank.Jack;   kicker=Some CardRank.Queen},
+         -1) // First is higher
+        ({rank=HandRank.Straight; rankValue=CardRank.Ace;   kicker=None},
+         {rank=HandRank.Straight; rankValue=CardRank.Ace;   kicker=None},
+         0) // Equals
+        ({rank=HandRank.Pair;     rankValue=CardRank.Jack;   kicker=Some CardRank.Seven},  
+         {rank=HandRank.TwoPair;     rankValue=CardRank.Two;   kicker=Some CardRank.King},
+         +1) // Second is higher
+        ({rank=HandRank.TwoPair;  rankValue=CardRank.Five;   kicker=Some CardRank.Two}, 
+         {rank=HandRank.TwoPair;  rankValue=CardRank.Two;   kicker=Some CardRank.Eight},
+         -1) // First is higher
+        ({rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Jack},   
+         {rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Ace},
+         +1) // Second is higher
+    ] |> List.map (fun (q, n, d) -> TestCaseData(q,n,d))
+
+[<TestCaseSource("CompareHandsTestCaseData")>]
+let CompareHandsTest 
+    (hand1:Hand) 
+    (hand2:Hand) 
+    (expectedCompareResult:int) =
+
+    let compareResult = compareHands hand1 hand2
+
+    Assert.AreEqual(expectedCompareResult, compareResult)
