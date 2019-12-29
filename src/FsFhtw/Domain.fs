@@ -1,14 +1,5 @@
 module Domain
 
-type Player = {
-    name : string;
-    position : int 
-}
-
-type Game = {
-    players : Player list
-}
-
 type CardRank =
     | Ace = 14
     | King = 13
@@ -33,6 +24,12 @@ type CardSuit =
 type Card = 
     CardRank * CardSuit
 
+let cardRank (card:Card) =
+    fst card
+
+let cardSuit (card:Card) =
+    snd card
+
 type Deck = 
     Card list
 
@@ -42,10 +39,8 @@ type ShuffledDeck =
 type CommunityCards =
     Card list
 
-type HoleCards = {
-    cards : Card list
-    player : Player
-}
+type HoleCards = 
+    Card list
 
 type HandRank =
     | HighCard = 0
@@ -63,16 +58,28 @@ type Hand = {
     rank: HandRank
     rankValue: CardRank
     kicker: CardRank option
-    player : Player
 }
+
+type Player = {
+    name : string
+    position : int
+    hand: Hand 
+    holeCards: HoleCards
+}
+
+type Game = {
+    players : Player list
+}
+
+type CreateDeck = unit -> Deck
 
 type CreateHand = CommunityCards -> HoleCards -> Hand
 
-type CompareHands = Hand -> Hand -> (Hand option)
+type CompareHands = Hand -> Hand -> int
 
 type ShuffleDeck = Deck -> ShuffledDeck
 
-type DealHoleCards = ShuffledDeck -> Player -> ShuffledDeck * HoleCards
+type DealHoleCards = ShuffledDeck -> ShuffledDeck * HoleCards
 
 type DealCommunityCards = ShuffledDeck -> ShuffledDeck * CommunityCards
 
