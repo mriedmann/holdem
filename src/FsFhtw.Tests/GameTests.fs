@@ -59,7 +59,6 @@ let CreateHandTestCaseData =
     ] |> List.map (fun (q, n, d) -> TestCaseData(q,n,d))
 
 [<TestCaseSource("CreateHandTestCaseData")>]
-[<Ignore("not implemented")>]
 let CreateHandTest (cc:string) (hc:string) (expectedHand:Hand) =
     let communityCards:CommunityCards = cc |> deserializeDeck
     let holeCards:HoleCards =  hc |> deserializeDeck
