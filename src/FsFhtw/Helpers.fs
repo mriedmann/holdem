@@ -2,7 +2,7 @@ module Helpers
 
 open System
 
-let mutable rnd = new Random()
+let mutable rnd = Random()
 
 let SeedRandom (seed:int) =
     rnd <- Random(seed)
@@ -16,3 +16,6 @@ let KnuthShuffle (lst : array<'a>) =                   // '
     [0..(ln - 2)]                                                   // For all indices except the last
     |> Seq.iter (fun i -> Swap i (rnd.Next(i, ln)))                 // swap th item at the index with a random one following it (or itself)
     lst   
+
+let notImplemented () =
+    raise (NotImplementedException())
