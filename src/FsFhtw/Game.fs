@@ -94,24 +94,28 @@ let createHand : CreateHand = fun  (communityCards : CommunityCards) (holeCards 
                 hasNextCardExpectedRank currentCardRank nextCardRank)
     
     let determineStraightCards (orderedCards : Card list) : Card list =
-
-        // TODO consider special case ACE-ONE here
-        let bottomToTopOrderedCards = 
+        let distinctOrderedCards = 
             orderedCards
-            |> List.distinctBy(fun (cardRank, cardSuit) -> cardRank)
-            |> List.sortBy(fun (cardRank, cardSuit) -> cardRank)
-            |> List.take 5
-            |> List.sortDescending
+            |> List.distinctBy(cardRank)
+        
+        if distinctOrderedCards.Length >= 5 then
+            // TODO consider special case ACE-ONE here
+            let bottomToTopOrderedCards = 
+                distinctOrderedCards
+                |> List.sortBy(cardRank)
+                |> List.take 5
+                |> List.sortDescending
 
-        let topToBottomOrderedCards = 
-            orderedCards 
-            |> List.distinctBy(fun (cardRank, cardSuit) -> cardRank)
-            |> List.take 5
+            let topToBottomOrderedCards = 
+                distinctOrderedCards
+                |> List.take 5
 
-        // for more than five cards, checks for a straight has to be done top down and vica versa
-        if areCardsInStraight bottomToTopOrderedCards then bottomToTopOrderedCards else
-        if areCardsInStraight topToBottomOrderedCards then topToBottomOrderedCards else
-        List.Empty
+            // for more than five cards, checks for a straight has to be done top down and vica versa
+            if areCardsInStraight bottomToTopOrderedCards then bottomToTopOrderedCards else
+            if areCardsInStraight topToBottomOrderedCards then topToBottomOrderedCards else
+            List.Empty
+        else
+            List.Empty
 
     let isHighestStraight (cards : Card list) : bool =
         let headRank, _ = cards.Head
