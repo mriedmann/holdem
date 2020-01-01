@@ -47,7 +47,7 @@ type CardAppearance =
 
 let createHand : CreateHand = fun  (communityCards : CommunityCards) (holeCards : HoleCards) ->
 
-    let cards : Card list = communityCards @ holeCards.cards
+    let cards : Card list = communityCards @ holeCards
     let orderedCards : Card list = cards |> List.sortByDescending(fun (cardRank, cardSuit) -> cardRank)
 
     let getCardsOfSuit (cards: Card list) (suit : CardSuit) : Card list =
