@@ -51,15 +51,14 @@ let DealCommunityCardsTest1 () =
 
 let CreateHandTestCaseData =
     [
-        ("2♥2♦2♠2♣3♣", "3♦3♠", {rank=HandRank.Poker;    rankValue=CardRank.Two;   kicker=Some CardRank.Three})
-        ("A♥K♦Q♠J♣T♣", "9♦8♠", {rank=HandRank.Straight; rankValue=CardRank.Ace;   kicker=None})
+        ("2♥2♦7♠2♣5♣", "6♦2♠", {rank=HandRank.Poker;    rankValue=CardRank.Two;   kicker=Some CardRank.Seven})
+        ("2♥3♦Q♠J♣T♣", "9♦8♠", {rank=HandRank.Straight; rankValue=CardRank.Queen;   kicker=None})
         ("2♥2♦5♠6♣3♣", "K♦Q♠", {rank=HandRank.Pair;     rankValue=CardRank.Two;   kicker=Some CardRank.King})
-        ("2♥2♦3♠6♣3♣", "7♦8♠", {rank=HandRank.TwoPair;  rankValue=CardRank.Two;   kicker=Some CardRank.Eight})
-        ("A♥K♦Q♠J♣T♣", "8♦8♠", {rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Ace})
+        ("2♥2♦3♠6♣3♣", "7♦8♠", {rank=HandRank.TwoPair;  rankValue=CardRank.Three;   kicker=Some CardRank.Eight})
+        ("A♥K♦Q♠J♣9♣", "8♦8♠", {rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Ace})
     ] |> List.map (fun (q, n, d) -> TestCaseData(q,n,d))
 
 [<TestCaseSource("CreateHandTestCaseData")>]
-[<Ignore("not implemented")>]
 let CreateHandTest (cc:string) (hc:string) (expectedHand:Hand) =
     let communityCards:CommunityCards = cc |> deserializeDeck
     let holeCards:HoleCards =  hc |> deserializeDeck
