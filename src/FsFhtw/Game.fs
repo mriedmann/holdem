@@ -178,6 +178,24 @@ let createHand : CreateHand = fun  (communityCards : CommunityCards) (holeCards 
 
     hand
 
-
 let compareHands : CompareHands = fun hand1 hand2 ->
-    notImplemented ()
+    let rankComparison = 
+        compare hand1.rank hand2.rank
+
+    let rankValueComparison = 
+        compare hand1.rankValue hand2.rankValue
+
+    let kickerComparison =
+        if hand1.kicker.IsSome && hand2.kicker.IsSome then
+            compare hand1.kicker hand2.kicker
+        else if hand1.kicker.IsNone && hand2.kicker.IsNone then
+            0
+        else
+            invalidArg "kicker" "Both kickers has to be 'Some' or 'None'"          
+        
+    if rankComparison <> 0 then 
+        rankComparison
+    else if rankValueComparison <> 0 then
+        rankValueComparison
+    else
+        kickerComparison
