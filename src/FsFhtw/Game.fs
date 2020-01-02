@@ -29,7 +29,8 @@ let dealCommunityCards : DealCommunityCards = fun deck ->
     dealCards deck 5
 
 let evaluateWinner : EvaluateWinner = fun players ->
-    notImplemented ()
+    let sortedPlayers : Player list = players |> List.sortByDescending(fun player -> player.hand.rank, player.hand.rankValue, player.hand.kicker) 
+    sortedPlayers.Head
 
 let isNotEmpty (list : 'a list) : bool =
     match list with
