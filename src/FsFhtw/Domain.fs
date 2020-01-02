@@ -15,6 +15,15 @@ type CardRank =
     | Three = 3
     | Two = 2
 
+let cardRanks = 
+    [ 
+        CardRank.Two; CardRank.Three; CardRank.Four;
+        CardRank.Five; CardRank.Six; CardRank.Seven;
+        CardRank.Eight; CardRank.Nine; CardRank.Ten;
+        CardRank.Jack; CardRank.Queen; CardRank.King;
+        CardRank.Ace;
+    ]
+
 type CardSuit =
     | Hearts = '\u2665'
     | Diamond = '\u2666'
