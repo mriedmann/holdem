@@ -73,23 +73,22 @@ let CompareHandsTestCaseData =
     [
         ({rank=HandRank.Poker;    rankValue=CardRank.Two;   kicker=Some CardRank.Three}, 
          {rank=HandRank.TwoPair;    rankValue=CardRank.Jack;   kicker=Some CardRank.Queen},
-         -1) // First is higher
+         +1) // First is higher
         ({rank=HandRank.Straight; rankValue=CardRank.Ace;   kicker=None},
          {rank=HandRank.Straight; rankValue=CardRank.Ace;   kicker=None},
          0) // Equals
         ({rank=HandRank.Pair;     rankValue=CardRank.Jack;   kicker=Some CardRank.Seven},  
          {rank=HandRank.TwoPair;     rankValue=CardRank.Two;   kicker=Some CardRank.King},
-         +1) // Second is higher
+         -1) // Second is higher
         ({rank=HandRank.TwoPair;  rankValue=CardRank.Five;   kicker=Some CardRank.Two}, 
          {rank=HandRank.TwoPair;  rankValue=CardRank.Two;   kicker=Some CardRank.Eight},
-         -1) // First is higher
+         +1) // First is higher
         ({rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Jack},   
          {rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Ace},
-         +1) // Second is higher
+         -1) // Second is higher
     ] |> List.map (fun (q, n, d) -> TestCaseData(q,n,d))
 
 [<TestCaseSource("CompareHandsTestCaseData")>]
-[<Ignore("not implemented")>]
 let CompareHandsTest 
     (hand1:Hand) 
     (hand2:Hand) 
