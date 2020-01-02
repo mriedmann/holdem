@@ -21,6 +21,8 @@ type CardSuit =
     | Spade = '\u2660'
     | Club = '\u2663'
 
+let cardSuits = [CardSuit.Hearts; CardSuit.Diamond; CardSuit.Spade; CardSuit.Club]
+
 type Card = 
     CardRank * CardSuit
 

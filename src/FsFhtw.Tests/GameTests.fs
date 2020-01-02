@@ -1,6 +1,7 @@
 module FsFhtw.Tests
 
 open NUnit.Framework
+open Helpers
 open Domain
 open DomainSerializer
 open Game
@@ -49,6 +50,88 @@ let DealCommunityCardsTest1 () =
     Assert.AreEqual(5, communityCards.Length)
     Assert.AreEqual("2♥2♦J♦2♠2♣", (communityCards |> serializeDeck))
 
+[<Test>]
+let determineFlushCardsTestPositive () =
+    let cards = "2♥3♥J♦4♥6♥8♥3♦" |> deserializeDeck
+    let result = determineFlushCards cards
+    match result with
+    | Finished (_, handRank, handRankValue) -> 
+        Assert.AreEqual(HandRank.Flush, handRank)
+        Assert.AreEqual(CardRank.Eight, handRankValue)
+    | Continue _ -> Assert.Fail () 
+
+[<Test>]
+let determineFlushCardsTestNegative () =
+    let cards = "2♣3♥J♦4♥6♣8♥3♦" |> deserializeDeck
+    let result = determineFlushCards cards
+    match result with
+    | Finished _ -> 
+        Assert.Fail ()
+    | Continue _ -> 
+        Assert.Pass () 
+
+[<Test>]
+let determineStraightCardsTestNegative () =
+    let cards = "2♣3♥J♦4♥6♣8♥3♦" |> deserializeDeck
+    let result = determineStraightCards cards
+    match result with
+    | Finished _ -> 
+        Assert.Fail ()
+    | Continue _ -> 
+        Assert.Pass ()
+
+[<Test>]
+let determineStraightCardsTestPositive () =
+    let cards = "2♥3♦8♠9♣T♣J♦Q♠" |> deserializeDeck
+    let result = determineStraightCards cards
+    match result with
+    | Finished (handCards, handRank, handRankValue) -> 
+        Assert.AreEqual(HandRank.Straight, handRank)
+        Assert.AreEqual(CardRank.Queen, handRankValue)
+        Assert.AreEqual("Q♠J♦T♣9♣8♠", (handCards |> serializeDeck))
+    | Continue _ -> Assert.Fail ()
+
+[<Test>]
+let determinePairCardsTestPositive () =
+    let cards = "2♥3♦8♠T♣T♣J♦Q♠" |> deserializeDeck
+    let result = determinePairCards cards
+    match result with
+    | Finished (_, handRank, handRankValue) -> 
+        Assert.AreEqual(HandRank.Pair, handRank)
+        Assert.AreEqual(CardRank.Ten, handRankValue)
+    | Continue _ -> Assert.Fail ()
+
+[<Test>]
+let determineTwoPairsCardsTestPositive () =
+    let cards = "2♥3♦8♠T♣T♣Q♦Q♠" |> deserializeDeck
+    let result = determineTwoPairsCards cards
+    match result with
+    | Finished (_, handRank, handRankValue) -> 
+        Assert.AreEqual(HandRank.TwoPair, handRank)
+        Assert.AreEqual(CardRank.Queen, handRankValue)
+    | Continue _ -> Assert.Fail ()
+
+[<Test>]
+let determineThreeOfAKindCardsTestPositive () =
+    let cards = "2♥3♦T♠T♣T♣J♦Q♠" |> deserializeDeck
+    let result = determineThreeOfAKindCards cards
+    match result with
+    | Finished (handCards, handRank, handRankValue) -> 
+        Assert.AreEqual(HandRank.ThreeOfAKind, handRank)
+        Assert.AreEqual(CardRank.Ten, handRankValue)
+        Assert.AreEqual("T♠T♣T♣", (handCards |> serializeDeck))
+    | Continue _ -> Assert.Fail ()
+
+[<Test>]
+let determinePokerCardsTestPositive () =
+    let cards = "2♥T♦T♠T♣T♥J♦Q♠" |> deserializeDeck
+    let result = determinePokerCards cards
+    match result with
+    | Finished (_, handRank, handRankValue) -> 
+        Assert.AreEqual(HandRank.Poker, handRank)
+        Assert.AreEqual(CardRank.Ten, handRankValue)
+    | Continue _ -> Assert.Fail ()
+
 let CreateHandTestCaseData =
     [
         ("2♥2♦7♠2♣5♣", "6♦2♠", {rank=HandRank.Poker;    rankValue=CardRank.Two;   kicker=Some CardRank.Seven})
@@ -56,6 +139,10 @@ let CreateHandTestCaseData =
         ("2♥2♦5♠6♣3♣", "K♦Q♠", {rank=HandRank.Pair;     rankValue=CardRank.Two;   kicker=Some CardRank.King})
         ("2♥2♦3♠6♣3♣", "7♦8♠", {rank=HandRank.TwoPair;  rankValue=CardRank.Three;   kicker=Some CardRank.Eight})
         ("A♥K♦Q♠J♣9♣", "8♦8♠", {rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Ace})
+        ("A♥K♥Q♥J♥T♥", "8♦8♠", {rank=HandRank.RoyalFlush; rankValue=CardRank.Ace; kicker=None})
+        ("3♥K♥5♥J♥T♥", "8♦8♠", {rank=HandRank.Flush; rankValue=CardRank.King; kicker=None})
+        ("3♥K♥Q♥J♥T♥", "9♥8♠", {rank=HandRank.StraightFlush; rankValue=CardRank.King; kicker=None})
+        ("2♥2♦3♠6♣3♣", "3♦8♠", {rank=HandRank.FullHouse;  rankValue=CardRank.Three;   kicker=None})
     ] |> List.map (fun (q, n, d) -> TestCaseData(q,n,d))
 
 [<TestCaseSource("CreateHandTestCaseData")>]
