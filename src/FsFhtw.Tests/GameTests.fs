@@ -116,7 +116,7 @@ let EvaluateWinnerTestCaseData =
         );
         ( //Same rank, Same rank value, different kicker
             {name = "Player1"; position = 1; hand = {rank = HandRank.HighCard; rankValue = CardRank.Ace; kicker = Some CardRank.Six}; holeCards = deserializeDeck "A♦6♠"},
-            {name = "Player2"; position = 2; hand = {rank = HandRank.HighCard; rankValue = CardRank.Ten; kicker = Some CardRank.Five}; holeCards = deserializeDeck "10♦5♠"},
+            {name = "Player2"; position = 2; hand = {rank = HandRank.HighCard; rankValue = CardRank.Ten; kicker = Some CardRank.Five}; holeCards = deserializeDeck "9♦5♠"},
             {name = "Player3"; position = 3; hand = {rank = HandRank.Pair; rankValue = CardRank.Jack; kicker = Some CardRank.Four}; holeCards = deserializeDeck "J♥4♠"},
             {name = "Player4"; position = 4; hand = {rank = HandRank.Pair; rankValue = CardRank.Jack; kicker = Some CardRank.Queen}; holeCards = deserializeDeck "J♦Q♠"},
             "Player4"
