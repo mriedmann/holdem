@@ -134,15 +134,44 @@ let determinePokerCardsTestPositive () =
 
 let CreateHandTestCaseData =
     [
-        ("2♥2♦7♠2♣5♣", "6♦2♠", {rank=HandRank.Poker;    rankValue=CardRank.Two;   kicker=Some CardRank.Seven})
-        ("2♥3♦Q♠J♣T♣", "9♦8♠", {rank=HandRank.Straight; rankValue=CardRank.Queen;   kicker=None})
-        ("2♥2♦5♠6♣3♣", "K♦Q♠", {rank=HandRank.Pair;     rankValue=CardRank.Two;   kicker=Some CardRank.King})
-        ("2♥2♦3♠6♣3♣", "7♦8♠", {rank=HandRank.TwoPair;  rankValue=CardRank.Three;   kicker=Some CardRank.Eight})
-        ("A♥K♦Q♠J♣9♣", "8♦8♠", {rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Ace})
+        //One pair
+        ("2♥2♦5♠6♣3♣", "K♦Q♠", {rank=HandRank.Pair; rankValue=CardRank.Two; kicker=Some CardRank.King})
+        //Two pairs
+        ("2♥2♦3♠6♣3♣", "7♦8♠", {rank=HandRank.TwoPair; rankValue=CardRank.Three; kicker=Some CardRank.Eight})
+        //Three pairs high card within third pair
+        ("A♥A♦Q♠Q♣T♣", "T♦8♠", {rank=HandRank.TwoPair; rankValue=CardRank.Ace; kicker=Some CardRank.Ten})
+        //Three pairs high card outside third pair
+        ("A♥A♦Q♠Q♣3♣", "3♦K♠", {rank=HandRank.TwoPair; rankValue=CardRank.Ace; kicker=Some CardRank.King})
+        //Pair
+        ("A♥K♦Q♠J♣9♣", "8♦8♠", {rank=HandRank.Pair; rankValue=CardRank.Eight; kicker=Some CardRank.Ace})
+        //Three of a kind
+        ("K♥K♦K♠J♣T♠", "9♦8♠", {rank=HandRank.ThreeOfAKind; rankValue=CardRank.King; kicker=Some CardRank.Jack})
+        //Two times Three of a kind - is FullHouse
+        ("K♥K♦K♠J♣J♠", "J♦8♠", {rank=HandRank.FullHouse; rankValue=CardRank.King; kicker=None})
+        //Poker
+        ("2♥2♦7♠2♣5♣", "6♦2♠", {rank=HandRank.Poker; rankValue=CardRank.Two; kicker=Some CardRank.Seven})
+        //Poker and Pair - Only Poker should count
+        ("2♥2♦7♠2♣7♣", "6♦2♠", {rank=HandRank.Poker; rankValue=CardRank.Two; kicker=Some CardRank.Seven})
+        //Straight
+        ("2♥3♦Q♠J♣T♣", "9♦8♠", {rank=HandRank.Straight; rankValue=CardRank.Queen; kicker=None})
+        //Royal Flush
         ("A♥K♥Q♥J♥T♥", "8♦8♠", {rank=HandRank.RoyalFlush; rankValue=CardRank.Ace; kicker=None})
+        //Flush
         ("3♥K♥5♥J♥T♥", "8♦8♠", {rank=HandRank.Flush; rankValue=CardRank.King; kicker=None})
+        //Straight Flush
         ("3♥K♥Q♥J♥T♥", "9♥8♠", {rank=HandRank.StraightFlush; rankValue=CardRank.King; kicker=None})
-        ("2♥2♦3♠6♣3♣", "3♦8♠", {rank=HandRank.FullHouse;  rankValue=CardRank.Three;   kicker=None})
+        //Full House
+        ("2♥2♦3♠6♣3♣", "3♦8♠", {rank=HandRank.FullHouse; rankValue=CardRank.Three; kicker=None})
+        //Straight and flush in the same deck of cards
+        ("K♥Q♦J♥T♥9♣", "2♥7♥", {rank=HandRank.Flush; rankValue=CardRank.King; kicker=None})
+        //Three of a kind and flush in the same deck of cards
+        ("K♥K♦K♣T♥9♥", "3♥4♥", {rank=HandRank.Flush; rankValue=CardRank.King; kicker=None})
+        //Longer straight - higher is non straight flush
+        ("A♦K♥Q♥J♥T♥", "9♥8♠", {rank=HandRank.StraightFlush; rankValue=CardRank.King; kicker=None})
+        //Straight with Ace as One
+        ("A♦2♥3♥4♥7♥", "5♣8♠", {rank=HandRank.Straight; rankValue=CardRank.Five; kicker=None})
+        //StraightFlush with Ace as one and second Ace
+        ("A♦2♥3♥4♥7♥", "5♣A♥", {rank=HandRank.StraightFlush; rankValue=CardRank.Five; kicker=None})
     ] |> List.map (fun (q, n, d) -> TestCaseData(q,n,d))
 
 [<TestCaseSource("CreateHandTestCaseData")>]
@@ -192,26 +221,41 @@ let EvaluateWinnerTestCaseData =
             {name = "Player2"; position = 2; hand = {rank = HandRank.TwoPair; rankValue = CardRank.Ten; kicker = Some CardRank.Five}; holeCards = deserializeDeck "9♦5♠"},
             {name = "Player3"; position = 3; hand = {rank = HandRank.ThreeOfAKind; rankValue = CardRank.Jack; kicker = Some CardRank.Four}; holeCards = deserializeDeck "J♦4♠"},
             {name = "Player4"; position = 4; hand = {rank = HandRank.Poker; rankValue = CardRank.Three; kicker = Some CardRank.King}; holeCards = deserializeDeck "3♦K♠"},
-            "Player4"
-        );
+            ["Player4"]
+        )
         ( //Same rank, different rank value
             {name = "Player1"; position = 1; hand = {rank = HandRank.HighCard; rankValue = CardRank.Ace; kicker = Some CardRank.Six}; holeCards = deserializeDeck "A♦6♠"},
             {name = "Player2"; position = 2; hand = {rank = HandRank.TwoPair; rankValue = CardRank.Ten; kicker = Some CardRank.Five}; holeCards = deserializeDeck "9♦5♠"},
             {name = "Player3"; position = 3; hand = {rank = HandRank.Poker; rankValue = CardRank.Jack; kicker = Some CardRank.Four}; holeCards = deserializeDeck "J♦4♠"},
             {name = "Player4"; position = 4; hand = {rank = HandRank.Poker; rankValue = CardRank.Three; kicker = Some CardRank.King}; holeCards = deserializeDeck "3♦K♠"},
-            "Player3"
-        );
+            ["Player3"]
+        )
         ( //Same rank, Same rank value, different kicker
             {name = "Player1"; position = 1; hand = {rank = HandRank.HighCard; rankValue = CardRank.Ace; kicker = Some CardRank.Six}; holeCards = deserializeDeck "A♦6♠"},
             {name = "Player2"; position = 2; hand = {rank = HandRank.HighCard; rankValue = CardRank.Ten; kicker = Some CardRank.Five}; holeCards = deserializeDeck "9♦5♠"},
             {name = "Player3"; position = 3; hand = {rank = HandRank.Pair; rankValue = CardRank.Jack; kicker = Some CardRank.Four}; holeCards = deserializeDeck "J♥4♠"},
             {name = "Player4"; position = 4; hand = {rank = HandRank.Pair; rankValue = CardRank.Jack; kicker = Some CardRank.Queen}; holeCards = deserializeDeck "J♦Q♠"},
-            "Player4"
+            ["Player4"]
         )
-    ] |> List.map (fun (player1 : Player, player2 : Player, player3 : Player, player4 : Player, expectedWinner : string) -> TestCaseData(player1, player2, player3, player4, expectedWinner))
+        ( //Multiple Winners - two winners
+            {name = "Player1"; position = 1; hand = {rank = HandRank.HighCard; rankValue = CardRank.Nine; kicker = Some CardRank.Six}; holeCards = deserializeDeck "7♦6♦"},
+            {name = "Player2"; position = 3; hand = {rank = HandRank.Pair; rankValue = CardRank.Jack; kicker = Some CardRank.Seven}; holeCards = deserializeDeck "J♥7♥"},
+            {name = "Player3"; position = 2; hand = {rank = HandRank.HighCard; rankValue = CardRank.Eight; kicker = Some CardRank.Six}; holeCards = deserializeDeck "7♣6♣"},
+            {name = "Player4"; position = 4; hand = {rank = HandRank.Pair; rankValue = CardRank.Jack; kicker = Some CardRank.Seven}; holeCards = deserializeDeck "J♠7♠"},
+            ["Player2"; "Player4"]
+        )
+        ( //Multiple Winners - all four win
+            {name = "Player1"; position = 1; hand = {rank = HandRank.HighCard; rankValue = CardRank.Jack; kicker = Some CardRank.Six}; holeCards = deserializeDeck "J♦6♦"},
+            {name = "Player2"; position = 2; hand = {rank = HandRank.HighCard; rankValue = CardRank.Jack; kicker = Some CardRank.Six}; holeCards = deserializeDeck "J♣6♣"},
+            {name = "Player3"; position = 3; hand = {rank = HandRank.HighCard; rankValue = CardRank.Jack; kicker = Some CardRank.Six}; holeCards = deserializeDeck "J♥6♥"},
+            {name = "Player4"; position = 4; hand = {rank = HandRank.HighCard; rankValue = CardRank.Jack; kicker = Some CardRank.Six}; holeCards = deserializeDeck "J♠6♠"},
+            ["Player1"; "Player2"; "Player3"; "Player4"]
+        )
+    ] |> List.map (fun (player1 : Player, player2 : Player, player3 : Player, player4 : Player, expectedWinner : string list) -> 
+        TestCaseData(player1, player2, player3, player4, expectedWinner))
 
 [<TestCaseSource("EvaluateWinnerTestCaseData")>]
-let EvaluateWinnerTest (player1 : Player) (player2 : Player) (player3 : Player) (player4 : Player) (expectedWinner : string) =
+let EvaluateWinnerTest (player1 : Player) (player2 : Player) (player3 : Player) (player4 : Player) (expectedWinner : string list) =
     let players = [player1; player2; player3; player4]
     let winner = evaluateWinner players
-    Assert.AreEqual(winner.name, expectedWinner)
+    Assert.IsTrue( expectedWinner |> List.forall2 (fun player winnerName -> player.name = winnerName) winner )

@@ -94,7 +94,7 @@ type DealHoleCards = ShuffledDeck -> ShuffledDeck * HoleCards
 
 type DealCommunityCards = ShuffledDeck -> ShuffledDeck * CommunityCards
 
-type EvaluateWinner = Player list -> Player
+type EvaluateWinner = Player list -> Player list
 
 type State = int
 

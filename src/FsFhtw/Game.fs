@@ -19,15 +19,11 @@ let dealHoleCards : DealHoleCards = fun deck ->
 let dealCommunityCards : DealCommunityCards = fun deck ->
     dealCards deck 5
 
-let evaluateWinner : EvaluateWinner = fun players ->
-    let sortedPlayers : Player list = players |> List.sortByDescending(fun player -> player.hand.rank, player.hand.rankValue, player.hand.kicker) 
-    sortedPlayers.Head
-
 let determineRankValue (cards) =
     cards 
-        |> List.map(cardRank) 
-        |> List.sortDescending
-        |> List.head
+    |> List.map(cardRank) 
+    |> List.sortDescending
+    |> List.head
 
 let determineFlushCards (cards) =
     let getCardsOfSuit (cards) (suit : CardSuit) =
@@ -35,9 +31,9 @@ let determineFlushCards (cards) =
 
     let flushCards = 
         cardSuits 
-            |> List.map (getCardsOfSuit cards >> (fun x -> (x, List.length x))) 
-            |> List.filter (fun (_, length) -> length >= 5) 
-            |> List.map (fst)
+        |> List.map (getCardsOfSuit cards >> (fun x -> (x, List.length x))) 
+        |> List.filter (fun (_, length) -> length >= 5) 
+        |> List.map (fst)
     
     if isNotEmpty flushCards then
         Finished (flushCards.Head, HandRank.Flush, determineRankValue flushCards.Head)
@@ -59,41 +55,65 @@ let determineCardsOfAKind (targetKind: HandRank) (cards) =
     let filteredCardRankGroups =
         cards
             |> List.groupBy (cardRank) 
-            |> List.filter (fun (_, cardList) -> cardList.Length = int kindSize)
-    if filteredCardRankGroups.Length = int appearance then 
-        let setCards = filteredCardRankGroups |> List.collect (fun (_, cardList) -> cardList)
+            |> List.filter (fun (_, cardList) -> cardList.Length >= int kindSize)
+    if filteredCardRankGroups.Length >= int appearance then 
+        let setCards = 
+            filteredCardRankGroups 
+            |> List.collect (fun (_, cardList) -> cardList)
+            |> List.sortByDescending (cardRank)
+            |> List.take (kindSize * appearance)
         Finished (setCards, targetKind, determineRankValue setCards)
     else 
         Continue cards
+
+let isSpecialCaseAceOne (cards : Card list) : bool =
+    let cardRanks = cards |> List.map (fun (cardRank, cardSuit) -> cardRank) 
+    List.contains CardRank.Ace cardRanks && List.contains CardRank.Two cardRanks
 
 let determineStraightCards (cards) =
     let distinctCards = 
         cards
         |> List.distinctBy(cardRank)
+
+    let getDistinctRankSortedCards (numberOfCards : int) =
+        distinctCards
+        |> List.sortBy(cardRank)
+        |> List.take numberOfCards
+        |> List.sortByDescending (cardRank)
     
     if distinctCards.Length >= 5 then
+        
+        let hasNextCardExpectedRank (currentCardRank : CardRank) (nextCardRank : CardRank) =  
+            if currentCardRank = CardRank.Two && nextCardRank = CardRank.Ace then 
+                true
+            else
+                (int nextCardRank = int currentCardRank - 1)
+        
         let areCardsInStraight (cards) =
             cards
             |> List.pairwise
             |> List.forall (fun ((currentCardRank, _), (nextCardRank, _)) -> 
-               int nextCardRank = int currentCardRank - 1)
-
-        let distinctSortedCards = 
-            distinctCards
-            |> List.sortBy(cardRank)
+               hasNextCardExpectedRank currentCardRank nextCardRank)
         
-        // TODO consider special case ACE-ONE here
+        let isSpecialCase : bool = isSpecialCaseAceOne cards
+
         let bottomToTopsortedCards = 
-            distinctSortedCards
-            |> List.sortDescending
-            |> List.take 5
+            if isSpecialCase then
+                let aceCard = 
+                    List.find (fun (cardRank, _) -> cardRank = CardRank.Ace) cards
+                getDistinctRankSortedCards 4 @ [aceCard]
+            else
+                getDistinctRankSortedCards 5
 
         let topToBottomsortedCards = 
-            distinctSortedCards
+            distinctCards
+            |> List.sortByDescending (cardRank)
             |> List.take 5
 
         // for more than five cards, checks for a straight has to be done top down and vica versa
-        if areCardsInStraight topToBottomsortedCards then 
+        if isSpecialCase then
+            Finished (bottomToTopsortedCards, HandRank.Straight, CardRank.Five)
+        else if areCardsInStraight topToBottomsortedCards then 
             Finished (topToBottomsortedCards, HandRank.Straight, (determineRankValue topToBottomsortedCards))
         else if areCardsInStraight bottomToTopsortedCards then 
             Finished (bottomToTopsortedCards, HandRank.Straight, (determineRankValue bottomToTopsortedCards))
@@ -101,6 +121,17 @@ let determineStraightCards (cards) =
             Continue cards
     else
         Continue cards
+
+let determineStraightFlushCards (cards) =
+    let flushCards = determineFlushCards cards
+    match flushCards with
+    | Finished (handCards, _, _) ->
+        let straightFlushCards = determineStraightCards handCards
+        match straightFlushCards with
+        | Finished (straightFlushHandCards, _, straightFlushHandRankValue) ->
+            Finished (straightFlushHandCards, HandRank.StraightFlush, straightFlushHandRankValue)
+        | Continue _ -> Continue cards
+    | Continue _ -> Continue cards
 
 let determineHighCards (cards) =
     let handCards = cards |> List.take 5
@@ -121,7 +152,7 @@ let determinePairCards =
 let determineKicker (handRankCards) (cards) : CardRank option =
     let headRank, _  = 
         cards 
-        |> List.filter (fun card -> not (List.contains card handRankCards)) 
+        |> List.except handRankCards
         |> List.head
     Some headRank
 
@@ -136,8 +167,9 @@ let createHand : CreateHand = fun  (communityCards : CommunityCards) (holeCards 
 
     let result = 
         sortedCards 
-        |> determineStraightCards
+        |> determineStraightFlushCards
         >>= determineFlushCards
+        >>= determineStraightCards
         >>= determinePokerCards
         >>= determineThreeOfAKindCards
         >>= determineTwoPairsCards
@@ -148,17 +180,15 @@ let createHand : CreateHand = fun  (communityCards : CommunityCards) (holeCards 
     | Finished (cards, handRank, handRankValue) -> 
         match handRank with
         // RoyalFlush        
-        | HandRank.Straight when isHighestStraight cards && isFlush cards -> 
+        | HandRank.StraightFlush when isHighestStraight cards -> 
             { rank = HandRank.RoyalFlush; rankValue = handRankValue; kicker = None }
-        // StraightFlush
-        | HandRank.Straight when isFlush cards -> 
-            { rank = HandRank.StraightFlush; rankValue = handRankValue; kicker = None }
-        // Straight, Flush (no kicker)
-        | HandRank.Straight
-        | HandRank.Flush -> 
+        // StraightFlush, Flush, Straight (no kicker)
+        | HandRank.StraightFlush
+        | HandRank.Flush
+        | HandRank.Straight ->
             { rank = handRank; rankValue = handRankValue; kicker = None }
         // Full House
-        | HandRank.ThreeOfAKind when (determinePairCards sortedCards |> hasFinished) ->
+        | HandRank.ThreeOfAKind when (determinePairCards (sortedCards |> List.except cards) |> hasFinished) ->
             { rank = HandRank.FullHouse; rankValue = handRankValue; kicker = None }
         // Pocker,ThreeOaK,TwoPair,Pair,HighCard
         | _ -> 
@@ -186,3 +216,10 @@ let compareHands : CompareHands = fun hand1 hand2 ->
         rankValueComparison
     else
         kickerComparison
+
+let evaluateWinner : EvaluateWinner = fun players ->
+    let sortedPlayers : Player list = 
+        players 
+        |> List.sortByDescending(fun player -> player.hand.rank, player.hand.rankValue, player.hand.kicker) 
+    let bestPlayerHand = sortedPlayers.Item(0).hand
+    List.filter(fun player -> (compareHands player.hand bestPlayerHand) = 0) sortedPlayers
