@@ -15,11 +15,22 @@ type CardRank =
     | Three = 3
     | Two = 2
 
+let cardRanks = 
+    [ 
+        CardRank.Two; CardRank.Three; CardRank.Four;
+        CardRank.Five; CardRank.Six; CardRank.Seven;
+        CardRank.Eight; CardRank.Nine; CardRank.Ten;
+        CardRank.Jack; CardRank.Queen; CardRank.King;
+        CardRank.Ace;
+    ]
+
 type CardSuit =
     | Hearts = '\u2665'
     | Diamond = '\u2666'
     | Spade = '\u2660'
     | Club = '\u2663'
+
+let cardSuits = [CardSuit.Hearts; CardSuit.Diamond; CardSuit.Spade; CardSuit.Club]
 
 type Card = 
     CardRank * CardSuit
@@ -83,7 +94,7 @@ type DealHoleCards = ShuffledDeck -> ShuffledDeck * HoleCards
 
 type DealCommunityCards = ShuffledDeck -> ShuffledDeck * CommunityCards
 
-type EvaluateWinner = Player list -> Player
+type EvaluateWinner = Player list -> Player list
 
 type State = int
 
