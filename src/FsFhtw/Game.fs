@@ -29,7 +29,8 @@ let dealCommunityCards : DealCommunityCards = fun deck ->
     dealCards deck 5
 
 let evaluateWinner : EvaluateWinner = fun players ->
-    notImplemented ()
+    let sortedPlayers : Player list = players |> List.sortByDescending(fun player -> player.hand.rank, player.hand.rankValue, player.hand.kicker) 
+    sortedPlayers.Head
 
 let determineRankValue (cards) =
     cards 
@@ -174,4 +175,23 @@ let createHand : CreateHand = fun  (communityCards : CommunityCards) (holeCards 
     | Continue _ -> notImplemented ()
 
 let compareHands : CompareHands = fun hand1 hand2 ->
-    notImplemented ()
+    let rankComparison = 
+        compare hand1.rank hand2.rank
+
+    let rankValueComparison = 
+        compare hand1.rankValue hand2.rankValue
+
+    let kickerComparison =
+        if hand1.kicker.IsSome && hand2.kicker.IsSome then
+            compare hand1.kicker hand2.kicker
+        else if hand1.kicker.IsNone && hand2.kicker.IsNone then
+            0
+        else
+            invalidArg "kicker" "Both kickers has to be 'Some' or 'None'"          
+        
+    if rankComparison <> 0 then 
+        rankComparison
+    else if rankValueComparison <> 0 then
+        rankValueComparison
+    else
+        kickerComparison

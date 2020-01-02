@@ -160,23 +160,22 @@ let CompareHandsTestCaseData =
     [
         ({rank=HandRank.Poker;    rankValue=CardRank.Two;   kicker=Some CardRank.Three}, 
          {rank=HandRank.TwoPair;    rankValue=CardRank.Jack;   kicker=Some CardRank.Queen},
-         -1) // First is higher
+         +1) // First is higher
         ({rank=HandRank.Straight; rankValue=CardRank.Ace;   kicker=None},
          {rank=HandRank.Straight; rankValue=CardRank.Ace;   kicker=None},
          0) // Equals
         ({rank=HandRank.Pair;     rankValue=CardRank.Jack;   kicker=Some CardRank.Seven},  
          {rank=HandRank.TwoPair;     rankValue=CardRank.Two;   kicker=Some CardRank.King},
-         +1) // Second is higher
+         -1) // Second is higher
         ({rank=HandRank.TwoPair;  rankValue=CardRank.Five;   kicker=Some CardRank.Two}, 
          {rank=HandRank.TwoPair;  rankValue=CardRank.Two;   kicker=Some CardRank.Eight},
-         -1) // First is higher
+         +1) // First is higher
         ({rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Jack},   
          {rank=HandRank.Pair;     rankValue=CardRank.Eight; kicker=Some CardRank.Ace},
-         +1) // Second is higher
+         -1) // Second is higher
     ] |> List.map (fun (q, n, d) -> TestCaseData(q,n,d))
 
 [<TestCaseSource("CompareHandsTestCaseData")>]
-[<Ignore("not implemented")>]
 let CompareHandsTest 
     (hand1:Hand) 
     (hand2:Hand) 
@@ -185,3 +184,34 @@ let CompareHandsTest
     let compareResult = compareHands hand1 hand2
 
     Assert.AreEqual(expectedCompareResult, compareResult)
+
+let EvaluateWinnerTestCaseData =
+    [
+        ( //Different rank
+            {name = "Player1"; position = 1; hand = {rank = HandRank.HighCard; rankValue = CardRank.Ace; kicker = Some CardRank.Six}; holeCards = deserializeDeck "A♦6♠"},
+            {name = "Player2"; position = 2; hand = {rank = HandRank.TwoPair; rankValue = CardRank.Ten; kicker = Some CardRank.Five}; holeCards = deserializeDeck "9♦5♠"},
+            {name = "Player3"; position = 3; hand = {rank = HandRank.ThreeOfAKind; rankValue = CardRank.Jack; kicker = Some CardRank.Four}; holeCards = deserializeDeck "J♦4♠"},
+            {name = "Player4"; position = 4; hand = {rank = HandRank.Poker; rankValue = CardRank.Three; kicker = Some CardRank.King}; holeCards = deserializeDeck "3♦K♠"},
+            "Player4"
+        );
+        ( //Same rank, different rank value
+            {name = "Player1"; position = 1; hand = {rank = HandRank.HighCard; rankValue = CardRank.Ace; kicker = Some CardRank.Six}; holeCards = deserializeDeck "A♦6♠"},
+            {name = "Player2"; position = 2; hand = {rank = HandRank.TwoPair; rankValue = CardRank.Ten; kicker = Some CardRank.Five}; holeCards = deserializeDeck "9♦5♠"},
+            {name = "Player3"; position = 3; hand = {rank = HandRank.Poker; rankValue = CardRank.Jack; kicker = Some CardRank.Four}; holeCards = deserializeDeck "J♦4♠"},
+            {name = "Player4"; position = 4; hand = {rank = HandRank.Poker; rankValue = CardRank.Three; kicker = Some CardRank.King}; holeCards = deserializeDeck "3♦K♠"},
+            "Player3"
+        );
+        ( //Same rank, Same rank value, different kicker
+            {name = "Player1"; position = 1; hand = {rank = HandRank.HighCard; rankValue = CardRank.Ace; kicker = Some CardRank.Six}; holeCards = deserializeDeck "A♦6♠"},
+            {name = "Player2"; position = 2; hand = {rank = HandRank.HighCard; rankValue = CardRank.Ten; kicker = Some CardRank.Five}; holeCards = deserializeDeck "9♦5♠"},
+            {name = "Player3"; position = 3; hand = {rank = HandRank.Pair; rankValue = CardRank.Jack; kicker = Some CardRank.Four}; holeCards = deserializeDeck "J♥4♠"},
+            {name = "Player4"; position = 4; hand = {rank = HandRank.Pair; rankValue = CardRank.Jack; kicker = Some CardRank.Queen}; holeCards = deserializeDeck "J♦Q♠"},
+            "Player4"
+        )
+    ] |> List.map (fun (player1 : Player, player2 : Player, player3 : Player, player4 : Player, expectedWinner : string) -> TestCaseData(player1, player2, player3, player4, expectedWinner))
+
+[<TestCaseSource("EvaluateWinnerTestCaseData")>]
+let EvaluateWinnerTest (player1 : Player) (player2 : Player) (player3 : Player) (player4 : Player) (expectedWinner : string) =
+    let players = [player1; player2; player3; player4]
+    let winner = evaluateWinner players
+    Assert.AreEqual(winner.name, expectedWinner)

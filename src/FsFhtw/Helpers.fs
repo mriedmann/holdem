@@ -37,4 +37,10 @@ let hasFinished (result) =
     | Finished _ -> true
     | _ -> false
 
-let isNotEmpty (x : 'a list) = x |> (List.isEmpty >> not)
+let isNotEmpty (x : 'a list) =
+    x |> (List.isEmpty >> not)
+
+let compare (val1 : 'a) (val2 : 'a) : int =
+    if val1 > val2 then 1
+    else if val1 < val2 then -1
+    else 0
