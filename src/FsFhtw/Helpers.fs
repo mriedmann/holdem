@@ -19,3 +19,8 @@ let KnuthShuffle (lst : array<'a>) =                   // '
 
 let notImplemented () =
     raise (NotImplementedException())
+
+let compare (val1 : 'a) (val2 : 'a) : int =
+    if val1 > val2 then 1
+    else if val1 < val2 then -1
+    else 0
