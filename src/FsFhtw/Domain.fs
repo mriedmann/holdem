@@ -32,7 +32,6 @@ type CardSuit =
 
 let cardSuits = [CardSuit.Hearts; CardSuit.Diamond; CardSuit.Spade; CardSuit.Club]
 
-[<StructuredFormatDisplay("{CardSuit}")>]
 type Card = 
     CardRank * CardSuit
 

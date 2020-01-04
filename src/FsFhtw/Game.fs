@@ -208,7 +208,7 @@ let compareHands : CompareHands = fun hand1 hand2 ->
         else if hand1.kicker.IsNone && hand2.kicker.IsNone then
             0
         else
-            0          
+            0 //TODO Check for potential issues    
         
     if rankComparison <> 0 then 
         rankComparison
