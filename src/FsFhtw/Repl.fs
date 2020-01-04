@@ -12,6 +12,9 @@ type State = Domain.State
 
 let read (input : string) =
     match input with
+    | StartGame numberOfPlayers -> Domain.StartGame numberOfPlayers |> DomainMessage 
+    | SetName name -> Domain.SetName name |> DomainMessage
+    | ResetCoins amount -> Domain.ResetCoins amount |> DomainMessage
     | Help -> HelpRequested
     | ParseFailed  -> NotParsable input
 
@@ -27,7 +30,7 @@ let evaluate (update : Domain.Message -> State -> State) (state : State) (msg : 
     match msg with
     | DomainMessage msg ->
         let newState = update msg state
-        let message = sprintf "The message was %A. New state is %A" msg newState
+        let message = sprintf "Ok, %A. Your current coin amount is %d. What now?" newState.name newState.coins
         (newState, message)
     | HelpRequested ->
         let message = createHelpText ()
@@ -46,6 +49,6 @@ let print (state : State, outputToPrint : string) =
 let rec loop (state : State) =
     Console.ReadLine()
     |> read
-    |> evaluate Domain.update state
+    |> evaluate GameLoop.update state
     |> print
     |> loop

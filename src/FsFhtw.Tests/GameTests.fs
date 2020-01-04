@@ -260,4 +260,4 @@ let EvaluateWinnerTestCaseData =
 let EvaluateWinnerTest (player1 : Player) (player2 : Player) (player3 : Player) (player4 : Player) (expectedWinner : string list) =
     let players = [player1; player2; player3; player4]
     let winner = evaluateWinner players
-    Assert.IsTrue( expectedWinner |> List.forall2 (fun player winnerName -> player.name = winnerName) winner )
+    Assert.IsTrue( expectedWinner |> List.forall2 (fun (player : Player) winnerName -> player.name = winnerName) winner )

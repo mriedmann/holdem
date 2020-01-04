@@ -1,6 +1,6 @@
 ﻿[<EntryPoint>]
 let main argv =
-    printfn "Welcome to the FHTW Domain REPL!"
+    printfn "Welcome to Texas Fold Them!"
     printfn "Please enter your commands to interact with the system."
     printfn "Press CTRL+C to stop the program."
     printf "> "
