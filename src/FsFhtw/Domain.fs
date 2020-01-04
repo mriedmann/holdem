@@ -32,6 +32,7 @@ type CardSuit =
 
 let cardSuits = [CardSuit.Hearts; CardSuit.Diamond; CardSuit.Spade; CardSuit.Club]
 
+[<StructuredFormatDisplay("{CardSuit}")>]
 type Card = 
     CardRank * CardSuit
 
@@ -96,14 +97,18 @@ type DealCommunityCards = ShuffledDeck -> ShuffledDeck * CommunityCards
 
 type EvaluateWinner = Player list -> Player list
 
-type State = int
+type State = {
+    name : string
+    coins : int
+}
 
 let init () : State =
-    0
+    {name = "Guest"; coins = 1000}
 
 type Message =
-    Noop
-
-let update (msg : Message) (model : State) : State =
-    match msg with
-    | Noop -> model
+    | SetName of string
+    | StartGame of int
+    | ResetCoins of int
+    | Help
+    | Done
+    

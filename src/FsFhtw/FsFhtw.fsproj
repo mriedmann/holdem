@@ -9,6 +9,7 @@
     <Compile Include="Domain.fs" />
     <Compile Include="DomainSerializer.fs" />
     <Compile Include="Game.fs" />
+    <Compile Include="GameLoop.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Repl.fs" />
     <Compile Include="Program.fs" />
