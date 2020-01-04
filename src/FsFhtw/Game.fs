@@ -111,7 +111,7 @@ let determineStraightCards (cards) =
             |> List.take 5
 
         // for more than five cards, checks for a straight has to be done top down and vica versa
-        if isSpecialCase then
+        if isSpecialCase && areCardsInStraight bottomToTopsortedCards then
             Finished (bottomToTopsortedCards, HandRank.Straight, CardRank.Five)
         else if areCardsInStraight topToBottomsortedCards then 
             Finished (topToBottomsortedCards, HandRank.Straight, (determineRankValue topToBottomsortedCards))
