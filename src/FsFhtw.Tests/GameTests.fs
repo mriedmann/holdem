@@ -172,6 +172,8 @@ let CreateHandTestCaseData =
         ("A♦2♥3♥4♥7♥", "5♣8♠", {rank=HandRank.Straight; rankValue=CardRank.Five; kicker=None})
         //StraightFlush with Ace as one and second Ace
         ("A♦2♥3♥4♥7♥", "5♥A♥", {rank=HandRank.StraightFlush; rankValue=CardRank.Five; kicker=None})
+        // High Card with ace and one in hand
+        ("5♥7♦4♣2♣8♣", "A♣9♦", {rank=HandRank.HighCard; rankValue=CardRank.Ace; kicker=None})
     ] |> List.map (fun (q, n, d) -> TestCaseData(q,n,d))
 
 [<TestCaseSource("CreateHandTestCaseData")>]

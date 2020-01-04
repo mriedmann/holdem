@@ -185,12 +185,13 @@ let createHand : CreateHand = fun  (communityCards : CommunityCards) (holeCards 
         // StraightFlush, Flush, Straight (no kicker)
         | HandRank.StraightFlush
         | HandRank.Flush
-        | HandRank.Straight ->
+        | HandRank.Straight
+        | HandRank.HighCard ->
             { rank = handRank; rankValue = handRankValue; kicker = None }
         // Full House
         | HandRank.ThreeOfAKind when (determinePairCards (sortedCards |> List.except cards) |> hasFinished) ->
             { rank = HandRank.FullHouse; rankValue = handRankValue; kicker = None }
-        // Pocker,ThreeOaK,TwoPair,Pair,HighCard
+        // Pocker,ThreeOaK,TwoPair,Pair
         | _ -> 
             { rank = handRank; rankValue = handRankValue; kicker = (determineKicker cards sortedCards)}
     | Continue _ -> notImplemented ()
