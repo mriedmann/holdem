@@ -31,8 +31,7 @@ let generateAiPlayers (deck : ShuffledDeck) (communityCards : CommunityCards) (n
 
 let playRound (numberOfPlayers : int) (model : State) : State = 
 
-    let calculateGainOrLoss (players : Player list) (currentPlayer : Player) : int =
-        let winner = evaluateWinner players
+    let calculateGainOrLoss (players : Player list) (winner : Player list) (currentPlayer : Player) : int =
         if winner |> List.exists(fun(player) -> player.name = model.name) then
             numberOfPlayers * 100 / winner.Length
         else
@@ -47,7 +46,7 @@ let playRound (numberOfPlayers : int) (model : State) : State =
     printfn "Dealing Player Cards..."
     let aiPlayers, deck = generateAiPlayers deck communityCards numberOfPlayers
     let player, _ = generatePlayer deck communityCards model.name (numberOfPlayers + 1)
-    let players = player::aiPlayers
+    let players = player :: aiPlayers
 
     printfn "Results:"
     printCards "Community Cards: " communityCards
@@ -56,7 +55,7 @@ let playRound (numberOfPlayers : int) (model : State) : State =
     let winner = evaluateWinner players
     printfn "%d winner(s): " winner.Length
     winner |> List.iter(fun(player) -> (printfn "%s won the game with %A" player.name player.hand.rank))
-    {name = model.name; coins = model.coins + calculateGainOrLoss players player}
+    {name = model.name; coins = model.coins + calculateGainOrLoss players winner player}
 
 let setName(name : string) (model : State) : State =
     {name = name; coins = model.coins}
