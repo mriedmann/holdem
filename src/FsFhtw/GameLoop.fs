@@ -6,7 +6,7 @@ open Game
 
 let printCards (prefix : string) (cards : Card list) =
     cards
-    |> List.map (serializeCard) //TODO Serialize Card does not seem to produce expected output in the terminal: CardSuit is not rendered
+    |> List.map (serializeCard)
     |> List.fold (fun prev curr -> prev + " " + curr) ""
     |> (fun cardString -> printfn "%s%s" prefix cardString)
 
