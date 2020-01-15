@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FsFhtw\FsFhtw.fsproj" />
+    <ProjectReference Include="..\..\src\FsFhtw\FsFhtw.fsproj" />
   </ItemGroup>
 
 </Project>
