@@ -30,16 +30,17 @@ let generateAiPlayers (deck : ShuffledDeck) (communityCards : CommunityCards) (n
     generatePlayerList deck communityCards numberOfPlayers []
 
 let playRound (numberOfPlayers : int) (model : State) : State = 
-    let calculateGainOrLoss (players : Player list) (winner : Player list) (currentPlayer : Player) : int =
-        if winner |> List.exists(fun(player) -> player.name = model.name) then
-            numberOfPlayers * 100 / winner.Length
-        else
-            -1 * 100
     let pn =
         match numberOfPlayers with
-        | x when x < 2 -> 2
+        | x when x < 1 -> 1
         | x when x > 22 -> 22
         | x -> x 
+    
+    let calculateGainOrLoss (players : Player list) (winner : Player list) (currentPlayer : Player) : int =
+        if winner |> List.exists(fun(player) -> player.name = model.name) then
+            pn * 100 / winner.Length
+        else
+            -1 * 100
     
     printfn "## Start round with %d players" pn
     printfn "Shuffling Deck..."
