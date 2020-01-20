@@ -1,79 +1,13 @@
-module FsFhtw.Tests
+module GameTests
 
 open NUnit.Framework
+open FsUnit
 open Helpers
 open Domain
 open DomainSerializer
 open Game
 
-[<SetUp>]
-let Setup () =
-    ()
-
-[<Test>]
-let CreateDeckTest1 () =
-    let deck = createDeck ()
-    Assert.That(deck.Length, Is.EqualTo(52))
-
-[<Test>]
-let CreateDeckTest2 () =
-    let deck = createDeck ()
-    let groups = deck |> List.groupBy cardSuit
-    Assert.That(groups.Length, Is.EqualTo(4))
- 
-[<Test>]
-let CreateDeckTest3 () =
-    let deck = createDeck ()
-    let groups = deck |> List.filter (fun c -> (cardSuit c) = CardSuit.Club) 
-    Assert.That(groups.Length, Is.EqualTo(13))
-
-[<Test>]
-let ShuffleDeckTest1 () =
-    Helpers.SeedRandom 1
-    let deck = createDeck ()
-    let shuffledDeck = shuffleDeck deck
-    Assert.That((shuffledDeck |> serializeDeck), Is.Not.EqualTo((deck |> serializeDeck)))
-
-[<Test>]
-let DealHoleCardsTest1 () =
-    let deck = "2♥2♦2♠2♣4♣" |> deserializeDeck
-    let holeCards, remainingDeck = deck |> dealHoleCards
-    Assert.AreEqual(3, remainingDeck.Length)
-    Assert.AreEqual(2, holeCards.Length)
-    Assert.AreEqual("2♥2♦", (holeCards |> serializeDeck))
-
-[<Test>]
-let DealCommunityCardsTest1 () =
-    let deck = "2♥2♦J♦2♠2♣4♣3♥3♦3♠7♣8♣" |> deserializeDeck
-    let communityCards, remainingDeck = deck |> dealCommunityCards
-    Assert.AreEqual(6, remainingDeck.Length)
-    Assert.AreEqual(5, communityCards.Length)
-    Assert.AreEqual("2♥2♦J♦2♠2♣", (communityCards |> serializeDeck))
-
-[<Test>]
-let determineFlushCardsTestPositive () =
-    let cards = "2♥3♥J♦4♥6♥8♥3♦" |> deserializeDeck
-    let result = determineFlushCards cards
-    match result with
-    | Finished (_, handRank, handRankValue) -> 
-        Assert.AreEqual(HandRank.Flush, handRank)
-        Assert.AreEqual(CardRank.Eight, handRankValue)
-    | Continue _ -> Assert.Fail () 
-
-[<Test>]
-let determineFlushCardsTestNegative () =
-    let cards = "2♣3♥J♦4♥6♣8♥3♦" |> deserializeDeck
-    let result = determineFlushCards cards
-    match result with
-    | Finished _ -> 
-        Assert.Fail ()
-    | Continue _ -> 
-        Assert.Pass () 
-
-[<Test>]
-let determineStraightCardsTestNegative () =
-    let cards = "2♣3♥J♦4♥6♣8♥3♦" |> deserializeDeck
-    let result = determineStraightCards cards
+let shouldContinue result = 
     match result with
     | Finished _ -> 
         Assert.Fail ()
@@ -81,14 +15,81 @@ let determineStraightCardsTestNegative () =
         Assert.Pass ()
 
 [<Test>]
+let CreateDeckTest1 () =
+    let deck = createDeck ()
+    deck |> should haveLength 52
+
+[<Test>]
+let CreateDeckTest2 () =
+    let deck = createDeck ()
+    let groups = deck |> List.groupBy cardSuit
+    groups |> should haveLength 4
+ 
+[<Test>]
+let CreateDeckTest3 () =
+    let deck = createDeck ()
+    let groups = deck |> List.filter (fun c -> (cardSuit c) = CardSuit.Club) 
+    groups |> should haveLength 13
+
+[<Test>]
+let ShuffleDeckTest1 () =
+    let deck = createDeck ()
+    let shuffledDeck = shuffleDeck (Some 1) deck
+    shuffledDeck |> should not' (equal deck)
+
+[<Test>]
+let ShuffleDeckTest2 () =
+    let deck = createDeck ()
+    let anotherDeck = createDeck ()
+    anotherDeck |> should equal deck
+
+[<Test>]
+let DealHoleCardsTest1 () =
+    let deck = "2♥2♦2♠2♣4♣" |> deserializeDeck
+    let holeCards, remainingDeck = deck |> dealHoleCards
+    remainingDeck |> should haveLength 3
+    holeCards |> should haveLength 2
+    holeCards |> serializeDeck |> should equal "2♥2♦"
+
+[<Test>]
+let DealCommunityCardsTest1 () =
+    let deck = "2♥2♦J♦2♠2♣4♣3♥3♦3♠7♣8♣" |> deserializeDeck
+    let communityCards, remainingDeck = deck |> dealCommunityCards
+    remainingDeck |> should haveLength 6
+    communityCards |> should haveLength 5
+    communityCards |> serializeDeck |> should equal "2♥2♦J♦2♠2♣"
+
+[<Test>]
+let determineFlushCardsTestPositive () =
+    let cards = "2♥3♥J♦4♥6♥8♥3♦" |> deserializeDeck
+    let result = determineFlushCards cards
+    match result with
+    | Finished (_, handRank, handRankValue) -> 
+        handRank |> should equal HandRank.Flush
+        handRankValue |> should equal CardRank.Eight
+    | Continue _ -> Assert.Fail () 
+
+[<Test>]
+let determineFlushCardsTestNegative () =
+    let cards = "2♣3♥J♦4♥6♣8♥3♦" |> deserializeDeck
+    let result = determineFlushCards cards
+    result |> shouldContinue
+
+[<Test>]
+let determineStraightCardsTestNegative () =
+    let cards = "2♣3♥J♦4♥6♣8♥3♦" |> deserializeDeck
+    let result = determineStraightCards cards
+    result |> shouldContinue
+
+[<Test>]
 let determineStraightCardsTestPositive () =
     let cards = "2♥3♦8♠9♣T♣J♦Q♠" |> deserializeDeck
     let result = determineStraightCards cards
     match result with
     | Finished (handCards, handRank, handRankValue) -> 
-        Assert.AreEqual(HandRank.Straight, handRank)
-        Assert.AreEqual(CardRank.Queen, handRankValue)
-        Assert.AreEqual("Q♠J♦T♣9♣8♠", (handCards |> serializeDeck))
+        handRank |> should equal HandRank.Straight
+        handRankValue |> should equal  CardRank.Queen
+        handCards |> serializeDeck |> should equal "Q♠J♦T♣9♣8♠"
     | Continue _ -> Assert.Fail ()
 
 [<Test>]
@@ -97,8 +98,8 @@ let determinePairCardsTestPositive () =
     let result = determinePairCards cards
     match result with
     | Finished (_, handRank, handRankValue) -> 
-        Assert.AreEqual(HandRank.Pair, handRank)
-        Assert.AreEqual(CardRank.Ten, handRankValue)
+        handRank |> should equal HandRank.Pair
+        handRankValue |> should equal CardRank.Ten 
     | Continue _ -> Assert.Fail ()
 
 [<Test>]
@@ -107,8 +108,8 @@ let determineTwoPairsCardsTestPositive () =
     let result = determineTwoPairsCards cards
     match result with
     | Finished (_, handRank, handRankValue) -> 
-        Assert.AreEqual(HandRank.TwoPair, handRank)
-        Assert.AreEqual(CardRank.Queen, handRankValue)
+        handRank |> should equal HandRank.TwoPair
+        handRankValue |> should equal CardRank.Queen
     | Continue _ -> Assert.Fail ()
 
 [<Test>]
@@ -117,9 +118,9 @@ let determineThreeOfAKindCardsTestPositive () =
     let result = determineThreeOfAKindCards cards
     match result with
     | Finished (handCards, handRank, handRankValue) -> 
-        Assert.AreEqual(HandRank.ThreeOfAKind, handRank)
-        Assert.AreEqual(CardRank.Ten, handRankValue)
-        Assert.AreEqual("T♠T♣T♣", (handCards |> serializeDeck))
+        handRank |> should equal HandRank.ThreeOfAKind
+        handRankValue |> should equal CardRank.Ten
+        handCards |> serializeDeck |> should equal "T♠T♣T♣"
     | Continue _ -> Assert.Fail ()
 
 [<Test>]
@@ -128,8 +129,8 @@ let determinePokerCardsTestPositive () =
     let result = determinePokerCards cards
     match result with
     | Finished (_, handRank, handRankValue) -> 
-        Assert.AreEqual(HandRank.Poker, handRank)
-        Assert.AreEqual(CardRank.Ten, handRankValue)
+        handRank |> should equal HandRank.Poker
+        handRankValue |> should equal CardRank.Ten
     | Continue _ -> Assert.Fail ()
 
 let CreateHandTestCaseData =
@@ -183,9 +184,9 @@ let CreateHandTest (cc:string) (hc:string) (expectedHand:Hand) =
 
     let hand = createHand communityCards holeCards
 
-    Assert.AreEqual(expectedHand.rank, hand.rank)
-    Assert.AreEqual(expectedHand.rankValue, hand.rankValue)
-    Assert.AreEqual(expectedHand.kicker, hand.kicker)
+    hand.rank |> should equal expectedHand.rank       
+    hand.rankValue |> should equal expectedHand.rankValue  
+    hand.kicker |> should equal expectedHand.kicker     
 
 let CompareHandsTestCaseData =
     [
@@ -214,7 +215,7 @@ let CompareHandsTest
 
     let compareResult = compareHands hand1 hand2
 
-    Assert.AreEqual(expectedCompareResult, compareResult)
+    compareResult |> should equal expectedCompareResult
 
 let EvaluateWinnerTestCaseData =
     [
@@ -260,4 +261,4 @@ let EvaluateWinnerTestCaseData =
 let EvaluateWinnerTest (player1 : Player) (player2 : Player) (player3 : Player) (player4 : Player) (expectedWinner : string list) =
     let players = [player1; player2; player3; player4]
     let winner = evaluateWinner players
-    Assert.IsTrue( expectedWinner |> List.forall2 (fun (player : Player) winnerName -> player.name = winnerName) winner )
+    expectedWinner |> List.forall2 (fun (player : Player) winnerName -> player.name = winnerName) winner |> should be True

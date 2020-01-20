@@ -19,3 +19,11 @@ Execute the following command.
 ```bash
 dotnet run src/FsFhtw/FsFhtw.fsproj
 ```
+
+## Run tests
+
+To run tests with coverage use following command.
+
+```bash
+dotnet test /p:CoverletOutputFormat=lcov /p:CoverletOutput=./lcov.info
+```

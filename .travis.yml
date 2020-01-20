@@ -3,6 +3,7 @@ solution: FsFhtw.sln
 mono: none
 dotnet: 3.1
 script:
+ - dotnet clean
  - dotnet restore
  - dotnet build
  - dotnet test

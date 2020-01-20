@@ -7,8 +7,8 @@ let createDeck : CreateDeck = fun () ->
     cardSuits 
     |> List.collect (fun suite -> [ for i in 0 .. 12 -> (cardRanks.[i], suite)])
 
-let shuffleDeck : ShuffleDeck = 
-    List.toArray >> KnuthShuffle >> Array.toList
+let shuffleDeck (seed: int option) : ShuffleDeck = 
+    List.toArray >> KnuthShuffle seed >> Array.toList
 
 let dealCards(deck : ShuffledDeck) (number : int) =
     deck |> List.splitAt (number)
